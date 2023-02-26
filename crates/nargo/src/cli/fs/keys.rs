@@ -1,8 +1,5 @@
-use super::{create_named_dir, load_hex_data, write_to_file};
-use crate::{
-    constants::{ACIR_CHECKSUM, PK_EXT, VK_EXT},
-    errors::CliError,
-};
+use super::{create_dir, load_hex_data, write_to_file, IOError};
+use crate::constants::{ACIR_CHECKSUM, PK_EXT, VK_EXT};
 use acvm::{acir::circuit::Circuit, hash_constraint_system};
 use std::path::{Path, PathBuf};
 
@@ -11,13 +8,13 @@ pub(crate) fn save_key_to_dir<P: AsRef<Path>>(
     key_name: &str,
     key_dir: P,
     is_proving_key: bool,
-) -> Result<PathBuf, CliError> {
-    create_named_dir(key_dir.as_ref(), key_name);
+) -> Result<PathBuf, IOError> {
+    create_dir(key_dir.as_ref())?;
 
     let extension = if is_proving_key { PK_EXT } else { VK_EXT };
     let key_path = key_dir.as_ref().join(key_name).with_extension(extension);
 
-    write_to_file(hex::encode(key).as_bytes(), &key_path);
+    write_to_file(hex::encode(key).as_bytes(), &key_path)?;
 
     Ok(key_path)
 }
@@ -27,7 +24,7 @@ pub(crate) fn fetch_pk_and_vk<P: AsRef<Path>>(
     circuit_build_path: P,
     prove_circuit: bool,
     check_proof: bool,
-) -> Result<(Vec<u8>, Vec<u8>), CliError> {
+) -> Result<(Vec<u8>, Vec<u8>), IOError> {
     let acir_hash_path = circuit_build_path.as_ref().with_extension(ACIR_CHECKSUM);
 
     let expected_acir_hash = load_hex_data(acir_hash_path.clone())?;
@@ -35,7 +32,7 @@ pub(crate) fn fetch_pk_and_vk<P: AsRef<Path>>(
     let new_acir_hash = hash_constraint_system(circuit);
 
     if new_acir_hash[..] != expected_acir_hash {
-        return Err(CliError::MismatchedAcir(acir_hash_path));
+        return Err(IOError::MismatchedAcir(acir_hash_path));
     }
 
     // This flag exists to avoid an unnecessary read of the proving key during verification
@@ -78,7 +75,7 @@ mod tests {
         save_key_to_dir(&pk, circuit_name, &circuit_build_path, true).unwrap();
         save_key_to_dir(&vk, circuit_name, &circuit_build_path, false).unwrap();
 
-        save_acir_hash_to_dir(&circuit, circuit_name, &circuit_build_path);
+        save_acir_hash_to_dir(&circuit, circuit_name, &circuit_build_path).unwrap();
         circuit_build_path.push(circuit_name);
 
         let loaded_keys = fetch_pk_and_vk(&circuit, circuit_build_path, true, true).unwrap();

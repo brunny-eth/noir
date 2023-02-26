@@ -39,7 +39,7 @@ pub(crate) fn preprocess_with_path<P: AsRef<Path>>(
 
     // Save a checksum of the circuit to compare against during proving and verification.
     // If hash doesn't match then the circuit has been updated and keys are stale.
-    save_acir_hash_to_dir(circuit, key_name, &preprocess_dir);
+    save_acir_hash_to_dir(circuit, key_name, &preprocess_dir)?;
 
     let pk_path = save_key_to_dir(&proving_key, key_name, &preprocess_dir, true)?;
     let vk_path = save_key_to_dir(&verification_key, key_name, preprocess_dir, false)?;

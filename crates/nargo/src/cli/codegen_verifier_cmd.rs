@@ -1,4 +1,4 @@
-use super::fs::{create_named_dir, write_to_file};
+use super::fs::{create_dir, write_to_file};
 use super::NargoConfig;
 use crate::{cli::compile_cmd::compile_circuit, constants::CONTRACT_DIR, errors::CliError};
 use acvm::SmartContract;
@@ -20,10 +20,10 @@ pub(crate) fn run(args: CodegenVerifierCommand, config: NargoConfig) -> Result<(
     let smart_contract_string = backend.eth_contract_from_cs(compiled_program.circuit);
 
     let contract_dir = config.program_dir.join(CONTRACT_DIR);
-    create_named_dir(&contract_dir, "contract");
+    create_dir(&contract_dir)?;
     let contract_path = contract_dir.join("plonk_vk").with_extension("sol");
 
-    let path = write_to_file(smart_contract_string.as_bytes(), &contract_path);
-    println!("Contract successfully created and located at {path}");
+    write_to_file(smart_contract_string.as_bytes(), &contract_path)?;
+    println!("Contract successfully created and located at {}", contract_path.display());
     Ok(())
 }

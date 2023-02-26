@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 use color_eyre::eyre;
 
 mod fs;
+pub(crate) use fs::IOError;
 
 mod check_cmd;
 mod codegen_verifier_cmd;

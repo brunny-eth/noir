@@ -4,9 +4,7 @@ use noirc_abi::{
 };
 use std::{collections::BTreeMap, path::Path};
 
-use crate::errors::CliError;
-
-use super::write_to_file;
+use super::{write_to_file, IOError};
 
 /// Returns the circuit's parameters and its return value, if one exists.
 /// # Examples
@@ -20,17 +18,17 @@ pub(crate) fn read_inputs_from_file<P: AsRef<Path>>(
     file_name: &str,
     format: Format,
     abi: &Abi,
-) -> Result<(InputMap, Option<InputValue>), CliError> {
+) -> Result<(InputMap, Option<InputValue>), IOError> {
     if abi.is_empty() {
         return Ok((BTreeMap::new(), None));
     }
 
     let file_path = path.as_ref().join(file_name).with_extension(format.ext());
     if !file_path.exists() {
-        return Err(CliError::MissingTomlFile(file_name.to_owned(), file_path));
+        return Err(IOError::MissingTomlFile(file_name.to_owned(), file_path));
     }
 
-    let input_string = std::fs::read_to_string(file_path).unwrap();
+    let input_string = std::fs::read_to_string(file_path)?;
     let mut input_map = format.parse(&input_string, abi)?;
     let return_value = input_map.remove(MAIN_RETURN_NAME);
 
@@ -43,7 +41,7 @@ pub(crate) fn write_inputs_to_file<P: AsRef<Path>>(
     path: P,
     file_name: &str,
     format: Format,
-) -> Result<(), CliError> {
+) -> Result<(), IOError> {
     let file_path = path.as_ref().join(file_name).with_extension(format.ext());
 
     // We must insert the return value into the `InputMap` in order for it to be written to file.
@@ -59,7 +57,7 @@ pub(crate) fn write_inputs_to_file<P: AsRef<Path>>(
         None => format.serialize(input_map)?,
     };
 
-    write_to_file(serialized_output.as_bytes(), &file_path);
+    write_to_file(serialized_output.as_bytes(), &file_path)?;
 
     Ok(())
 }

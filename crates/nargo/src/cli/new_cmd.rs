@@ -3,7 +3,7 @@ use crate::{
     errors::CliError,
 };
 
-use super::fs::{create_named_dir, write_to_file};
+use super::fs::{create_dir, write_to_file};
 use super::NargoConfig;
 use clap::Args;
 use std::path::{Path, PathBuf};
@@ -20,12 +20,8 @@ pub(crate) struct NewCommand {
 pub(crate) fn run(args: NewCommand, config: NargoConfig) -> Result<(), CliError> {
     let package_dir = config.program_dir.join(args.package_name);
 
-    if package_dir.exists() {
-        return Err(CliError::DestinationAlreadyExists(package_dir));
-    }
-
     let src_dir = package_dir.join(Path::new(SRC_DIR));
-    create_named_dir(&src_dir, "src");
+    create_dir(&src_dir)?;
 
     const EXAMPLE: &str =
         concat!("fn main(x : Field, y : pub Field) {\n", "    constrain x != y;\n", "}");
@@ -38,8 +34,8 @@ pub(crate) fn run(args: NewCommand, config: NargoConfig) -> Result<(), CliError>
         "[dependencies]"
     );
 
-    write_to_file(SETTINGS.as_bytes(), &package_dir.join(PKG_FILE));
-    write_to_file(EXAMPLE.as_bytes(), &src_dir.join("main.nr"));
+    write_to_file(SETTINGS.as_bytes(), &package_dir.join(PKG_FILE))?;
+    write_to_file(EXAMPLE.as_bytes(), &src_dir.join("main.nr"))?;
     println!("Project successfully created! Binary located at {}", package_dir.display());
     Ok(())
 }

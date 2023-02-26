@@ -113,7 +113,7 @@ fn save_and_preprocess_program(
     circuit_name: &str,
     circuit_dir: &Path,
 ) -> Result<(), CliError> {
-    save_program_to_file(compiled_program, circuit_name, circuit_dir);
+    save_program_to_file(compiled_program, circuit_name, circuit_dir)?;
     preprocess_with_path(circuit_name, circuit_dir, &compiled_program.circuit)?;
     Ok(())
 }
