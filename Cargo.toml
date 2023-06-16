@@ -53,3 +53,7 @@ tower = "0.4"
 url = "2.2.0"
 wasm-bindgen = { version = "0.2.83", features = ["serde-serialize"] }
 wasm-bindgen-test = "0.3.33"
+
+[patch.crates-io]
+acvm = { git = "https://github.com/noir-lang/acvm", rev = "6ed14c7a080dacd953bc4f36d3a03975b7c347f9" }
+acvm-backend-barretenberg = { git = "https://github.com/noir-lang/acvm-backend-barretenberg", rev = "e8482990fbb3637863723560851181d48e779fac" }

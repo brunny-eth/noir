@@ -1,19 +1,19 @@
-use acvm::pwg::{solve, Blocks, PartialWitnessGeneratorStatus};
+use acvm::pwg::{PartialWitnessGeneratorStatus, ACVM};
 use acvm::PartialWitnessGenerator;
 use acvm::{acir::circuit::Circuit, acir::native_types::WitnessMap};
 
 use crate::NargoError;
 
-pub fn execute_circuit(
-    backend: &impl PartialWitnessGenerator,
+pub fn execute_circuit<B: PartialWitnessGenerator + Default>(
+    _backend: &B,
     circuit: Circuit,
-    mut initial_witness: WitnessMap,
+    initial_witness: WitnessMap,
 ) -> Result<WitnessMap, NargoError> {
-    let mut blocks = Blocks::default();
-    let solver_status = solve(backend, &mut initial_witness, &mut blocks, circuit.opcodes)?;
+    let mut acvm = ACVM::new(B::default(), circuit.opcodes, initial_witness);
+    let solver_status = acvm.solve()?;
     if matches!(solver_status, PartialWitnessGeneratorStatus::RequiresOracleData { .. }) {
         todo!("Add oracle support to nargo execute")
     }
 
-    Ok(initial_witness)
+    Ok(acvm.finalize())
 }
