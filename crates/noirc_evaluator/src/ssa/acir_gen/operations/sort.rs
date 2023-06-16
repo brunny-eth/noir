@@ -115,9 +115,7 @@ fn permutation_layer(
 mod test {
     use acvm::{
         acir::{circuit::opcodes::FunctionInput, native_types::Witness, native_types::WitnessMap},
-        pwg::{
-            solve, Blocks, OpcodeResolution, OpcodeResolutionError, PartialWitnessGeneratorStatus,
-        },
+        pwg::{OpcodeResolution, OpcodeResolutionError, PartialWitnessGeneratorStatus, ACVM},
         FieldElement, PartialWitnessGenerator,
     };
 
@@ -170,12 +168,12 @@ mod test {
             let mut input = Vec::new();
             let mut a_val = Vec::new();
             let mut b_wit = Vec::new();
-            let mut solved_witness = WitnessMap::new();
+            let mut initial_witness = WitnessMap::new();
             for i in 0..n {
                 let w = eval.add_witness_to_cs();
                 input.push(w.into());
                 a_val.push(FieldElement::from(rng.next_u32() as i128));
-                solved_witness.insert(w, a_val[i]);
+                initial_witness.insert(w, a_val[i]);
             }
 
             let mut output = Vec::new();
@@ -196,15 +194,15 @@ mod test {
             }
             // initialize bits
             for i in 0..w.len() {
-                solved_witness.insert(w[i], FieldElement::from(c[i] as i128));
+                initial_witness.insert(w[i], FieldElement::from(c[i] as i128));
             }
             // compute the network output by solving the constraints
             let backend = MockBackend {};
-            let mut blocks = Blocks::default();
-            let solver_status =
-                solve(&backend, &mut solved_witness, &mut blocks, eval.opcodes.clone())
-                    .expect("Could not solve permutation constraints");
+            let mut acvm = ACVM::new(backend, eval.opcodes.clone(), initial_witness);
+            let solver_status = acvm.solve().expect("Could not solve permutation constraints");
             assert_eq!(solver_status, PartialWitnessGeneratorStatus::Solved, "Incomplete solution");
+
+            let solved_witness = acvm.finalize();
             let mut b_val = Vec::new();
             for i in 0..output.len() {
                 b_val.push(solved_witness[&b_wit[i]]);
