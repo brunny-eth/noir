@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.1](https://github.com/noir-lang/noir/compare/root-v0.7.0...root-v0.7.1) (2023-06-20)
+
+
+### Bug Fixes
+
+* **ssa refactor:** ACIR gen NOT integer ([#1749](https://github.com/noir-lang/noir/issues/1749)) ([af749a0](https://github.com/noir-lang/noir/commit/af749a0941cbba567c857da964a4fa57b4626004))
+* Update array type when processing staged memory ([#1751](https://github.com/noir-lang/noir/issues/1751)) ([27eb748](https://github.com/noir-lang/noir/commit/27eb74885d5e3bddc4a8ef07f5c2f958dee20839))
+
 ## [0.7.0](https://github.com/noir-lang/noir/compare/root-v0.6.0...root-v0.7.0) (2023-06-19)
 
 
