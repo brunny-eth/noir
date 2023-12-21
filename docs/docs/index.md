@@ -52,7 +52,7 @@ proving systems, Noir's agnostic compilation to a proof-agnostic intermediate la
 This allows protocol engineers the freedom to substitute the default PLONK-based system with an alternative of their
 choice, tailoring the proving system to their specific needs.
 
-### Blockchain developers
+### Blockchain Developers
 
 Blockchain developers often face environmental constraints, such as predetermined proving systems and smart contract
 languages. Noir addresses this by enabling the implementation of custom proving system backends and smart contract
@@ -80,5 +80,6 @@ Some libraries that are available today include:
   type, allowing access to negative numbers on Noir
 - [Fraction](https://github.com/resurgencelabs/fraction) - a library for accessing fractional number data type in Noir,
   allowing results that aren't whole numbers
+- [Base64](https://github.com/zkworks-xyz/noir-base64) - a library for base64 encoding
 
 See the section on [dependencies](noir/modules_packages_crates/dependencies.md) for more information.
